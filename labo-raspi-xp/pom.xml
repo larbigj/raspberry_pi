@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.larbig</groupId>
+  <artifactId>labo-raspi-xp</artifactId>
+  <packaging>war</packaging>
+  <version>1.0</version>
+  <name>Vaadin Web Application</name>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <vaadin.version>6.8.12</vaadin.version>
+    <gwt.version>2.3.0</gwt.version>
+    <gwt.plugin.version>2.2.0</gwt.plugin.version>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+
+    
+      <!-- A simple Jetty test server at http://localhost:8080/labo-raspi-xp-v6 can be launched with the Maven goal jetty:run 
+        and stopped with jetty:stop -->
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>maven-jetty-plugin</artifactId>
+        <version>6.1.24</version>
+        <configuration>
+          <stopPort>9966</stopPort>
+          <stopKey>labo-raspi-xp-v6</stopKey>
+          <!-- Redeploy every x seconds if changes are detected, 0 for no automatic redeployment -->
+          <scanIntervalSeconds>0</scanIntervalSeconds>
+          <!-- make sure Jetty also finds the widgetset -->
+          <webAppConfig>
+            <contextPath>/labo-raspi-xp-v6</contextPath>
+            <baseResource implementation="org.mortbay.resource.ResourceCollection">
+              <!-- Workaround for Maven/Jetty issue http://jira.codehaus.org/browse/JETTY-680 -->
+              <!-- <resources>src/main/webapp,${project.build.directory}/${project.build.finalName}</resources> -->
+              <resourcesAsCSV>src/main/webapp,${project.build.directory}/${project.build.finalName}</resourcesAsCSV>
+            </baseResource>
+          </webAppConfig>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.tomcat.maven</groupId>
+        <artifactId>tomcat7-maven-plugin</artifactId>
+        <version>2.0</version>
+        <configuration>
+          <path>/labo-raspi-xp-v6</path>
+        </configuration>
+      </plugin>
+ <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>gwt-maven-plugin</artifactId>
+        <!-- Version 2.1.0-1 works at least with Vaadin 6.5 -->
+            <version>2.1.0-1</version>
+            <configuration>
+                <!-- if you don't specify any modules, the plugin will find them -->
+                <!--modules>
+                    ..
+                </modules-->
+                <webappDirectory>${project.build.directory}/${project.build.finalName}/VAADIN/widgetsets</webappDirectory>
+                <extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+                <runTarget>clean</runTarget>
+                <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
+                <noServer>true</noServer>
+                <port>8080</port>
+                <soyc>false</soyc>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>resources</goal>
+                        <goal>compile</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+        <!-- Updates Vaadin 6.2+ widgetset definitions based on project dependencies -->
+        <plugin>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-maven-plugin</artifactId>
+            <version>1.0.2</version>
+            <executions>
+                <execution>
+                    <configuration>
+                        <!-- if you don't specify any modules, the plugin will find them -->
+                        
+                        <modules>
+                            <module>net.larbig.gwt.LaboWidgetSet</module>
+                        </modules>
+                     
+                    </configuration>
+                    <goals>
+                        <goal>update-widgetset</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+      
+    </plugins>
+    
+    
+  </build>
+
+  <repositories>
+  <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>central</id>
+      <name>Maven Repository Switchboard</name>
+      <url>http://repo1.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>vaadin-snapshots</id>
+      <url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>vaadin-addons</id>
+      <url>http://maven.vaadin.com/vaadin-addons</url>
+    </repository>
+    <repository>
+		<id>oss-snapshots-repo</id>
+		<name>Sonatype OSS Maven Repository</name>
+		<url>https://oss.sonatype.org/content/groups/public</url>
+		<snapshots>
+			<enabled>true</enabled>
+			<updatePolicy>always</updatePolicy>
+		</snapshots>
+	</repository>
+  </repositories>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>com.vaadin</groupId>
+      <artifactId>vaadin</artifactId>
+      <version>${vaadin.version}</version>
+    </dependency>
+
+	
+	<!-- java webcam -->
+		<dependency>
+	    <groupId>com.github.sarxos</groupId>
+	    <artifactId>webcam-capture</artifactId>
+	    <version>0.3.9</version>
+    </dependency>
+    <dependency>
+			<groupId>com.pi4j</groupId>
+			<artifactId>pi4j-core</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+	<groupId>com.pi4j</groupId>
+	<artifactId>pi4j-device</artifactId>
+	<version>1.0-SNAPSHOT</version>
+</dependency>
+
+<dependency>
+   <groupId>org.vaadin.addons</groupId>
+   <artifactId>switch</artifactId>
+   <version>1.0.1</version>
+</dependency>
+<dependency>
+    <groupId>com.google.gwt</groupId>
+    <artifactId>gwt-dev</artifactId>
+    <version>2.3.0</version>
+    <scope>provided</scope>
+    </dependency>
+    <dependency>
+    <groupId>com.google.gwt</groupId>
+    <artifactId>gwt-user</artifactId>
+    <version>2.3.0</version>
+     <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+</project>
